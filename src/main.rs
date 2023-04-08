@@ -16,7 +16,7 @@ fn main() {
 		// eprint!("\rLines Remaining: {} ", y);
 		// std::io::stderr().flush().unwrap();
 
-		for x in 0..IMG_HEIGHT {
+		for x in 0..IMG_WIDTH {
 			let r = (x as f64) / (IMG_WIDTH - 1) as f64;
 			let g = (y as f64) / (IMG_HEIGHT - 1) as f64;
 			let b = 0.25f64;
