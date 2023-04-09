@@ -19,11 +19,9 @@ fn main() {
 		for x in 0..IMG_WIDTH {
 			let r = (x as f64) / (IMG_WIDTH - 1) as f64;
 			let g = (y as f64) / (IMG_HEIGHT - 1) as f64;
-			let b = 0.25f64;
+			let b = 0.25;
 
-			rgb_buffer.push(num::clamp(255.999 * r, 0.0, 255.0) as u8);
-			rgb_buffer.push(num::clamp(255.999 * g, 0.0, 255.0) as u8);
-			rgb_buffer.push(num::clamp(255.999 * b, 0.0, 255.0) as u8);
+			push_pixel_color(&mut rgb_buffer, r, g, b, None);
 		}
 	}
 
@@ -53,4 +51,21 @@ fn save_image(
 	let mut writer = encoder.write_header().unwrap();
 
 	writer.write_image_data(image_buffer)
+}
+
+fn push_pixel_color(
+	buffer: &mut Vec<u8>,
+	red: f64,
+	green: f64,
+	blue: f64,
+	alpha: Option<f64>,
+) {
+	buffer.push(num::clamp(255.999 * red, 0.0, 255.0) as u8);
+	buffer.push(num::clamp(255.999 * green, 0.0, 255.0) as u8);
+	buffer.push(num::clamp(255.999 * blue, 0.0, 255.0) as u8);
+
+	match alpha {
+		Some(a) => buffer.push(num::clamp(255.999 * a, 0.0, 255.0) as u8),
+		None => (),
+	}
 }
