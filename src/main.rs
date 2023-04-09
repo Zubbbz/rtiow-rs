@@ -27,19 +27,7 @@ fn main() {
 		}
 	}
 
-	// let path = std::env::current_dir()
-	// 	.unwrap()
-	// 	.join(Path::new("./image.png"));
-	// let file = File::create(path).unwrap();
-	// let ref mut w = BufWriter::new(file);
-	// let mut encoder = Encoder::new(w, IMG_WIDTH, IMG_HEIGHT);
-	// encoder.set_color(ColorType::Rgb);
-	// encoder.set_depth(BitDepth::Eight);
-	// encoder.set_source_gamma(ScaledFloat::new(1.0 / 2.2));
-	// let mut writer = encoder.write_header().unwrap();
-	// writer.write_image_data(&rgb_buffer).unwrap();
 	save_image(None, &rgb_buffer).unwrap();
-
 	println!("\nDone.\n");
 }
 
@@ -63,13 +51,12 @@ fn save_image(
 	encoder.set_source_gamma(ScaledFloat::new(1.0 / 2.2));
 
 	let mut writer = encoder.write_header().unwrap();
-	match writer.write_image_data(image_buffer) {
-		Ok(()) => Ok(()),
-		Err(err) => Err(err),
-	}
+
+	writer.write_image_data(image_buffer)
 }
+
 
 	writer.write_image_data(&rgb_buffer).unwrap();
 
 	println!("\nDone.\n");
-	}
+}
