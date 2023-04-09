@@ -21,9 +21,9 @@ fn main() {
 			let g = (y as f64) / (IMG_HEIGHT - 1) as f64;
 			let b = 0.25f64;
 
-			rgb_buffer.push((255.999 * r) as u8);
-			rgb_buffer.push((255.999 * g) as u8);
-			rgb_buffer.push((255.999 * b) as u8);
+			rgb_buffer.push(num::clamp(255.999 * r, 0.0, 255.0) as u8);
+			rgb_buffer.push(num::clamp(255.999 * g, 0.0, 255.0) as u8);
+			rgb_buffer.push(num::clamp(255.999 * b, 0.0, 255.0) as u8);
 		}
 	}
 
@@ -53,10 +53,4 @@ fn save_image(
 	let mut writer = encoder.write_header().unwrap();
 
 	writer.write_image_data(image_buffer)
-}
-
-
-	writer.write_image_data(&rgb_buffer).unwrap();
-
-	println!("\nDone.\n");
 }
