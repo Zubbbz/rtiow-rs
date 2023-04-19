@@ -1,10 +1,12 @@
+use rtiow::{
+	img::{push_pixel_color, save_image, ImageRes},
+	vec::Color,
+};
 use std::io::Write;
 
-use rtiow::*;
-
 const RES: ImageRes = ImageRes {
-	width: 512,
-	height: 512,
+	width: 256,
+	height: 256,
 };
 
 fn main() {
@@ -15,11 +17,17 @@ fn main() {
 		std::io::stderr().flush().unwrap();
 
 		for x in 0..RES.width {
-			let r = (x as f64) / (RES.width - 1) as f64;
-			let g = (y as f64) / (RES.width - 1) as f64;
-			let b = 0.25;
-
-			push_pixel_color(&mut rgb_buffer, r, g, b, None);
+			push_pixel_color(
+				&mut rgb_buffer,
+				Color {
+					e: [
+						(x as f64) / (RES.width - 1) as f64,
+						(y as f64) / (RES.width - 1) as f64,
+						0.25,
+					],
+				},
+				None,
+			);
 		}
 	}
 
