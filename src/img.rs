@@ -1,4 +1,4 @@
-use crate::vec::Color;
+use crate::{ray::Ray, vec::Color};
 use png::{BitDepth, ColorType, Encoder, ScaledFloat};
 use std::{
 	fs::File,
@@ -36,12 +36,31 @@ pub fn push_pixel_color(
 	color: Color,
 	alpha: Option<f64>,
 ) {
-	buffer.push(num::clamp(255.999 * color.x(), 0.0, 255.0) as u8);
-	buffer.push(num::clamp(255.999 * color.y(), 0.0, 255.0) as u8);
-	buffer.push(num::clamp(255.999 * color.z(), 0.0, 255.0) as u8);
+	buffer.push(float_to_rgb(color.x()));
+	buffer.push(float_to_rgb(color.y()));
+	buffer.push(float_to_rgb(color.z()));
 
 	match alpha {
 		Some(a) => buffer.push(num::clamp(255.999 * a, 0.0, 255.0) as u8),
 		None => (),
 	}
+}
+
+// turn a float color into a u8 which is used by the rgb buffer
+fn float_to_rgb(f: f64) -> u8 {
+	num::clamp(255.999 * f, 0.0, 255.0) as u8
+}
+
+fn lerp_colors(t: f64, colors: (Color, Color)) -> Color {
+	(1.0 - t) * colors.0 + t * colors.1
+}
+
+pub fn ray_color(ray: &Ray, colors: Option<(Color, Color)>) -> Color {
+	let normalized_ray_dir = ray.direction.normalize();
+	let t: f64 = 0.5 * (normalized_ray_dir.y() + 1.0);
+	let colors = colors.unwrap_or((
+		Color { e: [1.0, 1.0, 1.0] },
+		Color { e: [0.5, 0.7, 1.0] },
+	));
+	lerp_colors(t, colors)
 }

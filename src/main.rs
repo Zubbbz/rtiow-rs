@@ -1,5 +1,5 @@
 use rtiow::{
-	img::{push_pixel_color, save_image},
+	img::{push_pixel_color, ray_color, save_image},
 	ray::Ray,
 	vec::{Color, Point3, Vec3},
 };
@@ -34,26 +34,22 @@ fn main() {
 	// END VARIABLES
 
 	// RENDER
-	for x in 0..img_width {
-		for y in 0..img_height {
+	for y in (0..img_height).rev() {
+		for x in 0..img_width {
 			let u = x as f64 / (img_width - 1) as f64;
-			let v = y as f64 / (img_height) as f64;
+			let v = y as f64 / (img_height - 1) as f64;
+
 			let ray = Ray {
 				origin: cam_origin,
-				direction: lower_left_corner + u * horizontal + v * vertical
+				direction: lower_left_corner
+					+ (u * horizontal) + (v * vertical)
 					- cam_origin,
 			};
-			let pixel_color: Color = ray_color(&ray);
+			let pixel_color: Color = ray_color(&ray, None);
 			push_pixel_color(&mut rgb_buffer, pixel_color, None);
 		}
 	}
 
 	save_image(None, (img_width, img_height), &rgb_buffer).unwrap();
 	println!("\nDone.\n");
-}
-
-fn ray_color(ray: &Ray) -> Color {
-	let normalized_ray_dir = ray.direction.normalize();
-	let t = 0.5 * (normalized_ray_dir.y() + 1.0);
-	(1.0 - t) * Color { e: [1.0, 1.0, 1.0] } + t * Color { e: [0.5, 0.7, 1.0] }
 }
