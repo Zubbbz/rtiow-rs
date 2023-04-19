@@ -6,14 +6,9 @@ use std::{
 	path::{Path, PathBuf},
 };
 
-pub struct ImageRes {
-	pub width: u32,
-	pub height: u32,
-}
-
 pub fn save_image(
 	path: Option<PathBuf>,
-	res: ImageRes,
+	res: (u32, u32),
 	image_buffer: &Vec<u8>,
 ) -> Result<(), png::EncodingError> {
 	// TODO: just gonna keep it as rgb for now, I might make it a parameter later but there isn't really a point
@@ -25,7 +20,7 @@ pub fn save_image(
 	let file = File::create(file_path).unwrap();
 
 	let ref mut w = BufWriter::new(file);
-	let mut encoder = Encoder::new(w, res.width, res.height);
+	let mut encoder = Encoder::new(w, res.0, res.1);
 
 	encoder.set_color(ColorType::Rgb);
 	encoder.set_depth(BitDepth::Eight);

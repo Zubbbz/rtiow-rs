@@ -1,6 +1,7 @@
 use core::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
+#[derive(Clone, Copy)]
 pub struct Vec3 {
 	pub e: [f64; 3],
 }
@@ -28,6 +29,10 @@ impl Vec3 {
 
 	pub fn length(&self) -> f64 {
 		self.length_squared().sqrt()
+	}
+
+	pub fn normalize(&self) -> Self {
+		*self / self.length()
 	}
 }
 
