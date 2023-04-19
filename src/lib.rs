@@ -25,15 +25,15 @@ mod tests {
 
 fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
 	let oc: Vec3 = ray.origin - *center;
-	let a = dot(&ray.direction, &ray.direction);
-	let b = 2.0 * dot(&oc, &ray.direction);
-	let c = dot(&oc, &oc) - radius * radius;
+	let a = ray.direction.length_squared();
+	let half_b = dot(&oc, &ray.direction);
+	let c = oc.length_squared() - radius * radius;
 
-	let descriminant = b * b - 4.0 * a * c;
+	let descriminant = half_b * half_b - a * c;
 	if descriminant < 0.0 {
 		-1.0
 	} else {
-		(-b - descriminant.sqrt()) / (2.0 * a)
+		(-half_b - descriminant.sqrt()) / a
 	}
 }
 
