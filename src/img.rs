@@ -1,4 +1,4 @@
-use crate::{ray::Ray, vec::Color};
+use crate::vec::Color;
 use png::{BitDepth, ColorType, Encoder, ScaledFloat};
 use std::{
 	fs::File,
@@ -51,16 +51,6 @@ fn float_to_rgb(f: f64) -> u8 {
 	num::clamp(255.999 * f, 0.0, 255.0) as u8
 }
 
-fn lerp_colors(t: f64, colors: (Color, Color)) -> Color {
+pub fn lerp_colors(t: f64, colors: (Color, Color)) -> Color {
 	(1.0 - t) * colors.0 + t * colors.1
-}
-
-pub fn ray_color(ray: &Ray, colors: Option<(Color, Color)>) -> Color {
-	let normalized_ray_dir = ray.direction.normalize();
-	let t: f64 = 0.5 * (normalized_ray_dir.y() + 1.0);
-	let colors = colors.unwrap_or((
-		Color { e: [1.0, 1.0, 1.0] },
-		Color { e: [0.5, 0.7, 1.0] },
-	));
-	lerp_colors(t, colors)
 }

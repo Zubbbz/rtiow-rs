@@ -1,6 +1,7 @@
 use rtiow::{
-	img::{push_pixel_color, ray_color, save_image},
+	img::{push_pixel_color, save_image},
 	ray::Ray,
+	ray_color,
 	vec::{Color, Point3, Vec3},
 };
 
@@ -10,7 +11,7 @@ fn main() {
 	// Const variables
 	// Image
 	let aspect_ratio: f64 = 16.0 / 9.0;
-	let img_width: u32 = 1280;
+	let img_width: u32 = 1920;
 	let img_height = (img_width as f64 / aspect_ratio) as u32;
 
 	// Camera
@@ -45,7 +46,14 @@ fn main() {
 					+ (u * horizontal) + (v * vertical)
 					- cam_origin,
 			};
-			let pixel_color: Color = ray_color(&ray, None);
+			let pixel_color: Color = ray_color(
+				&ray,
+				/* Some((
+					Color { e: [1.0, 0.0, 0.0] },
+					Color { e: [0.0, 0.0, 0.0] },
+				)), */
+				None,
+			);
 			push_pixel_color(&mut rgb_buffer, pixel_color, None);
 		}
 	}
