@@ -9,7 +9,7 @@ use std::{
 pub fn save_image(
 	path: Option<PathBuf>,
 	res: (u32, u32),
-	image_buffer: &Vec<u8>,
+	image_buffer: &[u8],
 ) -> Result<(), png::EncodingError> {
 	// TODO: just gonna keep it as rgb for now, I might make it a parameter later but there isn't really a point
 	let file_path = path.unwrap_or(
@@ -19,7 +19,7 @@ pub fn save_image(
 	);
 	let file = File::create(file_path).unwrap();
 
-	let ref mut w = BufWriter::new(file);
+	let w = &mut BufWriter::new(file);
 	let mut encoder = Encoder::new(w, res.0, res.1);
 
 	encoder.set_color(ColorType::Rgb);
@@ -40,9 +40,8 @@ pub fn push_pixel_color(
 	buffer.push(float_to_rgb(color.y()));
 	buffer.push(float_to_rgb(color.z()));
 
-	match alpha {
-		Some(a) => buffer.push(num::clamp(255.999 * a, 0.0, 255.0) as u8),
-		None => (),
+	if let Some(a) = alpha {
+		buffer.push(num::clamp(255.999 * a, 0.0, 255.0) as u8)
 	}
 }
 
