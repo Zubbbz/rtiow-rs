@@ -1,12 +1,28 @@
 use rtiow::{
+	hittable_list::HittableList,
 	img::{push_pixel_color, save_image},
 	ray::Ray,
 	ray_color,
-	vec::{Color, Point3, Vec3},
+	shapes::sphere::Sphere,
+	vec::{Point3, Vec3},
 };
 
 fn main() {
-	let mut rgb_buffer: Vec<u8> = vec![];
+	// World
+	let mut world = Box::new(HittableList::new());
+
+	world.add(Box::new(Sphere {
+		center: Vec3 {
+			e: [0.0, 0.0, -1.0],
+		},
+		radius: 0.5,
+	}));
+	world.add(Box::new(Sphere {
+		center: Vec3 {
+			e: [0.0, -100.5, -1.0],
+		},
+		radius: 100.0,
+	}));
 
 	// Const variables
 	// Image
@@ -35,6 +51,7 @@ fn main() {
 	// END VARIABLES
 
 	// RENDER
+	let mut rgb_buffer: Vec<u8> = vec![];
 	for y in (0..img_height).rev() {
 		for x in 0..img_width {
 			let u = x as f64 / (img_width - 1) as f64;
@@ -46,14 +63,8 @@ fn main() {
 					+ (u * horizontal) + (v * vertical)
 					- cam_origin,
 			};
-			let pixel_color: Color = ray_color(
-				&ray,
-				/* Some((
-					Color { e: [1.0, 0.0, 0.0] },
-					Color { e: [0.0, 0.0, 0.0] },
-				)), */
-				None,
-			);
+
+			let pixel_color = ray_color(None, &ray, &world);
 			push_pixel_color(&mut rgb_buffer, pixel_color, None);
 		}
 	}

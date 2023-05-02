@@ -1,7 +1,7 @@
 use core::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct Vec3 {
 	pub e: [f64; 3],
 }
@@ -96,6 +96,14 @@ impl Div<f64> for Vec3 {
 	fn div(self, t: f64) -> Self::Output {
 		self * (1.0 / t)
 	}
+}
+
+fn _cross(u: &Vec3, v: &Vec3) -> Vec3 {
+	Vec3::new(
+		u.e[1] * v.e[2] - u.e[2] * v.e[1],
+		u.e[2] * v.e[0] - u.e[0] * v.e[2],
+		u.e[0] * v.e[1] - u.e[1] * v.e[0],
+	)
 }
 
 pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
