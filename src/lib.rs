@@ -4,7 +4,7 @@ use hittable::{HitRecord, Hittable};
 use hittable_list::HittableList;
 use img::lerp_colors;
 use ray::Ray;
-use vec::Color;
+use vec::{Color, Point3, Vec3};
 
 pub mod camera;
 pub mod hittable;
@@ -38,12 +38,29 @@ pub fn ray_color(
 	bg_colors: Option<(Color, Color)>,
 	ray: &Ray,
 	world: &HittableList,
+	depth: u32,
 ) -> Color {
 	let mut rec = HitRecord::default();
 
-	if world.hit(ray, (0.0, INFINITY), &mut rec) {
-		return 0.5 * (rec.normal + Color { e: [1.0, 1.0, 1.0] });
+	if depth == 0 {
+		return Color::default();
 	}
+
+	if world.hit(ray, (0.001, INFINITY), &mut rec) {
+		let target: Point3 =
+			rec.intersection + rec.normal + Vec3::new_rand_in_sphere();
+		return 0.5
+			* ray_color(
+				None,
+				&Ray {
+					origin: rec.intersection,
+					direction: target - rec.intersection,
+				},
+				world,
+				depth - 1,
+			);
+	}
+
 	let normalized = ray.direction.normalize();
 	let t = 0.5 * (normalized.y() + 1.0);
 

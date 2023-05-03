@@ -11,9 +11,10 @@ use rtiow::{
 fn main() {
 	// Image
 	let aspect_ratio: f64 = 16.0 / 9.0;
-	let img_width: u32 = 1280;
+	let img_width: u32 = 400;
 	let img_height = (img_width as f64 / aspect_ratio) as u32;
-	let spp: u32 = 20;
+	let spp: u32 = 100;
+	let max_depth = 50;
 
 	// World
 	let mut world = Box::new(HittableList::new());
@@ -48,7 +49,8 @@ fn main() {
 				let v: f64 =
 					(y as f64 + rng.gen::<f64>()) / (img_height as f64 - 1.0);
 				let ray = camera.get_ray(u, v);
-				pixel_color = pixel_color + ray_color(None, &ray, &world);
+				pixel_color =
+					pixel_color + ray_color(None, &ray, &world, max_depth);
 			}
 			push_pixel_color(&mut rgb_buffer, &mut pixel_color, None, spp);
 		}

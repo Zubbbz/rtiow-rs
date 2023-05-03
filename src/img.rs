@@ -37,16 +37,18 @@ pub fn push_pixel_color(
 	alpha: Option<f64>,
 	spp: u32,
 ) {
-	// Divide the color by the number of samples
+	let mut r = color.e[0];
+	let mut g = color.e[1];
+	let mut b = color.e[2];
+
 	let scale = 1.0 / spp as f64;
+	r = f64::sqrt(scale * r);
+	g = f64::sqrt(scale * g);
+	b = f64::sqrt(scale * b);
 
-	color.e[0] *= scale;
-	color.e[1] *= scale;
-	color.e[2] *= scale;
-
-	buffer.push(float_to_rgb(color.e[0]));
-	buffer.push(float_to_rgb(color.e[1]));
-	buffer.push(float_to_rgb(color.e[2]));
+	buffer.push(float_to_rgb(r));
+	buffer.push(float_to_rgb(g));
+	buffer.push(float_to_rgb(b));
 
 	if let Some(a) = alpha {
 		buffer.push(float_to_rgb(a))

@@ -1,6 +1,8 @@
 use core::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
+use rand::Rng;
+
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
 	pub e: [f64; 3],
@@ -9,6 +11,29 @@ pub struct Vec3 {
 impl Vec3 {
 	pub fn new(x: f64, y: f64, z: f64) -> Self {
 		Self { e: [x, y, z] }
+	}
+
+	pub fn new_rand(minmax: Option<(f64, f64)>) -> Self {
+		let mut rng = rand::thread_rng();
+		let minmax = minmax.unwrap_or((0.0, 1.0));
+
+		Self {
+			e: [
+				rng.gen_range(minmax.0..minmax.1),
+				rng.gen_range(minmax.0..minmax.1),
+				rng.gen_range(minmax.0..minmax.1),
+			],
+		}
+	}
+
+	pub fn new_rand_in_sphere() -> Self {
+		loop {
+			let p = Vec3::new_rand(Some((-1.0, 1.0)));
+			if p.length_squared() >= 1.0 {
+				continue;
+			}
+			return p;
+		}
 	}
 
 	pub fn x(&self) -> f64 {
