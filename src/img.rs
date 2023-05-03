@@ -33,21 +33,29 @@ pub fn save_image(
 
 pub fn push_pixel_color(
 	buffer: &mut Vec<u8>,
-	color: Color,
+	color: &mut Color,
 	alpha: Option<f64>,
+	spp: u32,
 ) {
-	buffer.push(float_to_rgb(color.x()));
-	buffer.push(float_to_rgb(color.y()));
-	buffer.push(float_to_rgb(color.z()));
+	// Divide the color by the number of samples
+	let scale = 1.0 / spp as f64;
+
+	color.e[0] *= scale;
+	color.e[1] *= scale;
+	color.e[2] *= scale;
+
+	buffer.push(float_to_rgb(color.e[0]));
+	buffer.push(float_to_rgb(color.e[1]));
+	buffer.push(float_to_rgb(color.e[2]));
 
 	if let Some(a) = alpha {
-		buffer.push(num::clamp(255.999 * a, 0.0, 255.0) as u8)
+		buffer.push(float_to_rgb(a))
 	}
 }
 
 // turn a float color into a u8 which is used by the rgb buffer
 fn float_to_rgb(f: f64) -> u8 {
-	num::clamp(255.999 * f, 0.0, 255.0) as u8
+	(num::clamp(f, 0.0, 0.999) * 256.0) as u8
 }
 
 pub fn lerp_colors(t: f64, colors: (Color, Color)) -> Color {

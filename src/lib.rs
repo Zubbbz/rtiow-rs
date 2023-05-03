@@ -6,6 +6,7 @@ use img::lerp_colors;
 use ray::Ray;
 use vec::Color;
 
+pub mod camera;
 pub mod hittable;
 pub mod hittable_list;
 pub mod img;

@@ -1,13 +1,20 @@
+use rand::Rng;
 use rtiow::{
+	camera::Camera,
 	hittable_list::HittableList,
 	img::{push_pixel_color, save_image},
-	ray::Ray,
 	ray_color,
 	shapes::sphere::Sphere,
-	vec::{Point3, Vec3},
+	vec::{Color, Vec3},
 };
 
 fn main() {
+	// Image
+	let aspect_ratio: f64 = 16.0 / 9.0;
+	let img_width: u32 = 1280;
+	let img_height = (img_width as f64 / aspect_ratio) as u32;
+	let spp: u32 = 20;
+
 	// World
 	let mut world = Box::new(HittableList::new());
 
@@ -24,48 +31,26 @@ fn main() {
 		radius: 100.0,
 	}));
 
-	// Const variables
-	// Image
-	let aspect_ratio: f64 = 16.0 / 9.0;
-	let img_width: u32 = 1920;
-	let img_height = (img_width as f64 / aspect_ratio) as u32;
-
 	// Camera
-	let viewport_height: f64 = 2.0;
-	let viewport_width: f64 = aspect_ratio * viewport_height;
-	let focal_length: f64 = 1.0;
+	let camera: Camera = Camera::new(Some(aspect_ratio), None, None, None);
 
-	let cam_origin = Point3 { e: [0.0, 0.0, 0.0] };
-	let horizontal = Vec3 {
-		e: [viewport_width, 0.0, 0.0],
-	};
-	let vertical = Vec3 {
-		e: [0.0, viewport_height, 0.0],
-	};
-	let lower_left_corner = cam_origin
-		- horizontal / 2.0
-		- vertical / 2.0
-		- Vec3 {
-			e: [0.0, 0.0, focal_length],
-		};
-	// END VARIABLES
+	// SETUP RNG
+	let mut rng = rand::thread_rng();
 
 	// RENDER
 	let mut rgb_buffer: Vec<u8> = vec![];
 	for y in (0..img_height).rev() {
 		for x in 0..img_width {
-			let u = x as f64 / (img_width - 1) as f64;
-			let v = y as f64 / (img_height - 1) as f64;
-
-			let ray = Ray {
-				origin: cam_origin,
-				direction: lower_left_corner
-					+ (u * horizontal) + (v * vertical)
-					- cam_origin,
-			};
-
-			let pixel_color = ray_color(None, &ray, &world);
-			push_pixel_color(&mut rgb_buffer, pixel_color, None);
+			let mut pixel_color: Color = Color::default();
+			for _s in 0..spp {
+				let u: f64 =
+					(x as f64 + rng.gen::<f64>()) / (img_width as f64 - 1.0);
+				let v: f64 =
+					(y as f64 + rng.gen::<f64>()) / (img_height as f64 - 1.0);
+				let ray = camera.get_ray(u, v);
+				pixel_color = pixel_color + ray_color(None, &ray, &world);
+			}
+			push_pixel_color(&mut rgb_buffer, &mut pixel_color, None, spp);
 		}
 	}
 
