@@ -24,21 +24,26 @@ fn main() {
 		albedo: Color::new(0.8, 0.8, 0.0),
 		surface: material::Surface::LambDiffuse,
 		roughness: 0.0,
+		ior: 0.0,
 	};
 	let material_center = Material {
-		albedo: Color::new(0.7, 0.3, 0.3),
+		albedo: Color::new(0.1, 0.2, 0.5),
 		surface: material::Surface::LambDiffuse,
 		roughness: 0.0,
+		ior: 1.333,
 	};
+
 	let material_left = Material {
-		albedo: Color::new(0.8, 0.8, 0.8),
-		surface: material::Surface::Reflective,
-		roughness: 0.3,
+		albedo: Color::default(),
+		surface: material::Surface::Dielectric,
+		roughness: 0.0,
+		ior: 1.50,
 	};
 	let material_right = Material {
 		albedo: Color::new(0.8, 0.6, 0.2),
 		surface: material::Surface::Reflective,
-		roughness: 1.0,
+		roughness: 0.0,
+		ior: 0.0,
 	};
 
 	world.add(Box::new(Sphere {
@@ -54,6 +59,11 @@ fn main() {
 	world.add(Box::new(Sphere {
 		center: Point3::new(-1.0, 0.0, -1.0),
 		radius: 0.5,
+		material: material_left,
+	}));
+	world.add(Box::new(Sphere {
+		center: Point3::new(-1.0, 0.0, -1.0),
+		radius: -0.4,
 		material: material_left,
 	}));
 	world.add(Box::new(Sphere {

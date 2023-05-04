@@ -2,7 +2,7 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec::{dot, Point3, Vec3};
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default)]
 pub struct HitRecord {
 	pub intersection: Point3,
 	pub normal: Vec3,

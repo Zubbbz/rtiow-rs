@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use rand::Rng;
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default)]
 pub struct Vec3 {
 	pub e: [f64; 3],
 }
@@ -84,8 +84,12 @@ impl Vec3 {
 		*vec - 2.0 * dot(vec, nml) * *nml
 	}
 
-	fn _reflect(&self, nml: &Vec3) -> Self {
-		*self - 2.0 * dot(self, nml) * *nml
+	pub fn refract(uv: &Vec3, nml: &Vec3, etai_over_etat: f64) -> Self {
+		let cos_theta = dot(&-*uv, nml).min(1.0);
+		let r_out_perp: Vec3 = etai_over_etat * (*uv + cos_theta * *nml);
+		let r_out_parallel: Vec3 =
+			-(1.0 - r_out_perp.length_squared()).abs().sqrt() * *nml;
+		r_out_perp + r_out_parallel
 	}
 }
 
