@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use rand::Rng;
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub struct Vec3 {
 	pub e: [f64; 3],
 }
@@ -25,14 +25,27 @@ impl Vec3 {
 			],
 		}
 	}
+	pub fn random_normal() -> Self {
+		Vec3::rand_in_unit_sphere().normalize()
+	}
 
-	pub fn new_rand_in_sphere() -> Self {
+	pub fn rand_in_unit_sphere() -> Self {
 		loop {
 			let p = Vec3::new_rand(Some((-1.0, 1.0)));
 			if p.length_squared() >= 1.0 {
 				continue;
 			}
 			return p;
+		}
+	}
+
+	pub fn random_in_hemisphere(normal: Vec3) -> Self {
+		let in_unit_sphere = Vec3::rand_in_unit_sphere();
+		if dot(&in_unit_sphere, &normal) > 0.0 {
+			// In the same hemisphere as the normal
+			in_unit_sphere
+		} else {
+			-in_unit_sphere
 		}
 	}
 
@@ -59,11 +72,26 @@ impl Vec3 {
 	pub fn normalize(&self) -> Self {
 		*self / self.length()
 	}
+
+	pub fn near_zero(&self) -> bool {
+		let s = 1e-8;
+		f64::abs(self.e[0]) < s
+			&& f64::abs(self.e[1]) < s
+			&& f64::abs(self.e[2]) < s
+	}
+
+	pub fn reflect(vec: &Vec3, nml: &Vec3) -> Self {
+		*vec - 2.0 * dot(vec, nml) * *nml
+	}
+
+	fn _reflect(&self, nml: &Vec3) -> Self {
+		*self - 2.0 * dot(self, nml) * *nml
+	}
 }
 
 impl fmt::Display for Vec3 {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		write!(f, "{} {} {}", self.e[0], self.e[1], self.e[2])
+		write!(f, "x: {}, y: {}, Z: {}", self.e[0], self.e[1], self.e[2])
 	}
 }
 
@@ -112,6 +140,20 @@ impl Mul<Vec3> for f64 {
 
 	fn mul(self, v: Vec3) -> Self::Output {
 		v * self
+	}
+}
+
+impl Mul<Vec3> for Vec3 {
+	type Output = Vec3;
+
+	fn mul(self, other: Vec3) -> Self::Output {
+		Vec3 {
+			e: [
+				self.e[0] * other.e[0],
+				self.e[1] * other.e[1],
+				self.e[2] * other.e[2],
+			],
+		}
 	}
 }
 

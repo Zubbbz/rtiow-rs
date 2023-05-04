@@ -3,15 +3,16 @@ use rtiow::{
 	camera::Camera,
 	hittable_list::HittableList,
 	img::{push_pixel_color, save_image},
+	material::{self, Material},
 	ray_color,
 	shapes::sphere::Sphere,
-	vec::{Color, Vec3},
+	vec::{Color, Point3},
 };
 
 fn main() {
 	// Image
 	let aspect_ratio: f64 = 16.0 / 9.0;
-	let img_width: u32 = 400;
+	let img_width: u32 = 1280;
 	let img_height = (img_width as f64 / aspect_ratio) as u32;
 	let spp: u32 = 100;
 	let max_depth = 50;
@@ -19,17 +20,46 @@ fn main() {
 	// World
 	let mut world = Box::new(HittableList::new());
 
+	let material_ground = Material {
+		albedo: Color::new(0.8, 0.8, 0.0),
+		surface: material::Surface::LambDiffuse,
+		roughness: 0.0,
+	};
+	let material_center = Material {
+		albedo: Color::new(0.7, 0.3, 0.3),
+		surface: material::Surface::LambDiffuse,
+		roughness: 0.0,
+	};
+	let material_left = Material {
+		albedo: Color::new(0.8, 0.8, 0.8),
+		surface: material::Surface::Reflective,
+		roughness: 0.3,
+	};
+	let material_right = Material {
+		albedo: Color::new(0.8, 0.6, 0.2),
+		surface: material::Surface::Reflective,
+		roughness: 1.0,
+	};
+
 	world.add(Box::new(Sphere {
-		center: Vec3 {
-			e: [0.0, 0.0, -1.0],
-		},
-		radius: 0.5,
+		center: Point3::new(0.0, -100.5, -1.0),
+		radius: 100.0,
+		material: material_ground,
 	}));
 	world.add(Box::new(Sphere {
-		center: Vec3 {
-			e: [0.0, -100.5, -1.0],
-		},
-		radius: 100.0,
+		center: Point3::new(0.0, 0.0, -1.0),
+		radius: 0.5,
+		material: material_center,
+	}));
+	world.add(Box::new(Sphere {
+		center: Point3::new(-1.0, 0.0, -1.0),
+		radius: 0.5,
+		material: material_left,
+	}));
+	world.add(Box::new(Sphere {
+		center: Point3::new(1.0, 0.0, -1.0),
+		radius: 0.5,
+		material: material_right,
 	}));
 
 	// Camera

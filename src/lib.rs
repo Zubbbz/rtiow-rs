@@ -4,12 +4,13 @@ use hittable::{HitRecord, Hittable};
 use hittable_list::HittableList;
 use img::lerp_colors;
 use ray::Ray;
-use vec::{Color, Point3, Vec3};
+use vec::Color;
 
 pub mod camera;
 pub mod hittable;
 pub mod hittable_list;
 pub mod img;
+pub mod material;
 pub mod ray;
 pub mod shapes;
 pub mod utility;
@@ -47,18 +48,16 @@ pub fn ray_color(
 	}
 
 	if world.hit(ray, (0.001, INFINITY), &mut rec) {
-		let target: Point3 =
-			rec.intersection + rec.normal + Vec3::new_rand_in_sphere();
-		return 0.5
-			* ray_color(
-				None,
-				&Ray {
-					origin: rec.intersection,
-					direction: target - rec.intersection,
-				},
-				world,
-				depth - 1,
-			);
+		let mut scattered = Ray::default();
+		let mut attenuation = Color::default();
+
+		if rec
+			.material
+			.sample(ray, &rec, &mut attenuation, &mut scattered)
+		{
+			return attenuation * ray_color(None, &scattered, world, depth - 1);
+		}
+		return Color::new(0.0, 0.0, 0.0);
 	}
 
 	let normalized = ray.direction.normalize();
