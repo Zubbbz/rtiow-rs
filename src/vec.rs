@@ -91,6 +91,18 @@ impl Vec3 {
 			-(1.0 - r_out_perp.length_squared()).abs().sqrt() * *nml;
 		r_out_perp + r_out_parallel
 	}
+
+	pub fn cross(&self, v: &Vec3) -> Self {
+		Vec3::new(
+			self.e[1] * v.e[2] - self.e[2] * v.e[1],
+			self.e[2] * v.e[0] - self.e[0] * v.e[2],
+			self.e[0] * v.e[1] - self.e[1] * v.e[0],
+		)
+	}
+
+	pub fn dot(&self, v: &Vec3) -> f64 {
+		self.e[0] * v.e[0] + self.e[1] * v.e[1] + self.e[2] * v.e[2]
+	}
 }
 
 impl fmt::Display for Vec3 {
