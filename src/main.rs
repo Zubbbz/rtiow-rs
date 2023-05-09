@@ -1,5 +1,3 @@
-use std::f64::consts::PI;
-
 use rand::Rng;
 use rtiow::{
 	camera::Camera,
@@ -8,79 +6,27 @@ use rtiow::{
 	material::{self, Material},
 	ray_color,
 	shapes::sphere::Sphere,
+	utility::{random_f64, random_f64_range},
 	vec::{Color, Point3, Vec3},
 };
 
 fn main() {
 	// Image
-	let aspect_ratio: f64 = 16.0 / 9.0;
-	let img_width: u32 = 1280;
+	let aspect_ratio: f64 = 3.0 / 2.0;
+	let img_width: u32 = 600;
 	let img_height = (img_width as f64 / aspect_ratio) as u32;
-	let spp: u32 = 100;
+	let spp: u32 = 500;
 	let max_depth = 50;
 
 	// World
-	let _r = (PI / 4.0).cos();
-	let mut world = Box::new(HittableList::new());
-
-	let material_ground = Material {
-		albedo: Color::new(0.8, 0.8, 0.0),
-		surface: material::Surface::LambDiffuse,
-		roughness: 0.0,
-		ior: 0.0,
-	};
-	let material_center = Material {
-		albedo: Color::new(0.1, 0.2, 0.5),
-		surface: material::Surface::LambDiffuse,
-		roughness: 0.0,
-		ior: 1.333,
-	};
-	let material_left = Material {
-		albedo: Color::default(),
-		surface: material::Surface::Dielectric,
-		roughness: 0.0,
-		ior: 1.50,
-	};
-	let material_right = Material {
-		albedo: Color::new(0.8, 0.6, 0.2),
-		surface: material::Surface::Reflective,
-		roughness: 0.0,
-		ior: 0.0,
-	};
-
-	world.add(Box::new(Sphere {
-		center: Point3::new(0.0, -100.5, -1.0),
-		radius: 100.0,
-		material: material_ground,
-	}));
-
-	world.add(Box::new(Sphere {
-		center: Point3::new(0.0, 0.0, -1.0),
-		radius: 0.5,
-		material: material_center,
-	}));
-	world.add(Box::new(Sphere {
-		center: Point3::new(-1.0, 0.0, -1.0),
-		radius: 0.5,
-		material: material_left,
-	}));
-	world.add(Box::new(Sphere {
-		center: Point3::new(-1.0, 0.0, -1.0),
-		radius: -0.45,
-		material: material_left,
-	}));
-	world.add(Box::new(Sphere {
-		center: Point3::new(1.0, 0.0, -1.0),
-		radius: 0.5,
-		material: material_right,
-	}));
+	let world = random_scene();
 
 	// Camera
-	let lookfrom: Point3 = Point3::new(3.0, 3.0, 2.0);
-	let lookat: Point3 = Point3::new(0.0, 0.0, -1.0);
+	let lookfrom: Point3 = Point3::new(13.0, 2.0, 3.0);
+	let lookat: Point3 = Point3::new(0.0, 0.0, 0.0);
 	let vup: Vec3 = Vec3::new(0.0, 1.0, 0.0);
-	let dist_to_focus: f64 = (lookfrom - lookat).length();
-	let aperture: f64 = 2.0;
+	let dist_to_focus: f64 = 10.0;
+	let aperture: f64 = 0.1;
 
 	let camera: Camera = Camera::new(
 		lookfrom,
@@ -115,4 +61,117 @@ fn main() {
 
 	save_image(None, (img_width, img_height), &rgb_buffer).unwrap();
 	println!("\nDone.\n");
+}
+
+fn random_scene() -> Box<HittableList> {
+	let mut world = Box::new(HittableList::new());
+
+	let ground_material = Material {
+		albedo: Color::new(0.5, 0.5, 0.5),
+		surface: material::Surface::LambDiffuse,
+		roughness: 0.0,
+		ior: 0.0,
+	};
+	world.add(Box::new(Sphere {
+		center: Point3::new(0.0, -1000.0, 0.0),
+		radius: 1000.0,
+		material: ground_material,
+	}));
+
+	for a in -11..11 {
+		for b in -11..11 {
+			let choose_mat = random_f64();
+			let center: Point3 = Point3::new(
+				a as f64 + 0.0 * random_f64(),
+				0.2,
+				b as f64 + 0.9 * random_f64(),
+			);
+
+			if ((center - Point3::new(4.0, 0.2, 0.0)).length()) > 0.9 {
+				let sphere_material: Material;
+
+				if choose_mat < 0.8 {
+					// diffuse
+					let albedo = Color::random() * Color::random();
+					sphere_material = Material {
+						albedo,
+						surface: material::Surface::LambDiffuse,
+						roughness: 0.0,
+						ior: 0.0,
+					};
+					world.add(Box::new(Sphere {
+						center,
+						radius: 0.2,
+						material: sphere_material,
+					}));
+				} else if choose_mat < 0.95 {
+					// reflective
+					let albedo = Color::random_range(0.5, 1.0);
+					let fuzz = random_f64_range(0.0, 0.5);
+					sphere_material = Material {
+						albedo,
+						surface: material::Surface::Reflective,
+						roughness: fuzz,
+						ior: 0.0,
+					};
+					world.add(Box::new(Sphere {
+						center,
+						radius: 0.2,
+						material: sphere_material,
+					}));
+				} else {
+					// glass
+					let sphere_material = Material {
+						albedo: Color::new(0.0, 0.0, 0.0),
+						surface: material::Surface::Dielectric,
+						roughness: 0.0,
+						ior: 1.5,
+					};
+					world.add(Box::new(Sphere {
+						center,
+						radius: 0.2,
+						material: sphere_material,
+					}));
+				}
+			}
+		}
+	}
+
+	let material1 = Material {
+		albedo: Color::random(),
+		surface: material::Surface::Dielectric,
+		roughness: 0.0,
+		ior: 1.5,
+	};
+	world.add(Box::new(Sphere {
+		center: Point3::new(0.0, 1.0, 0.0),
+		radius: 1.0,
+		material: material1,
+	}));
+
+	let material2 = Material {
+		albedo: Color::new(0.4, 0.2, 0.1),
+		surface: material::Surface::LambDiffuse,
+		roughness: 0.0,
+		ior: 0.0,
+	};
+	world.add(Box::new(Sphere {
+		center: Point3::new(-4.0, 1.0, 0.0),
+		radius: 1.0,
+		material: material2,
+	}));
+
+	let material3 = Material {
+		albedo: Color::new(0.7, 0.6, 0.5),
+		surface: material::Surface::Reflective,
+		roughness: 0.0,
+		ior: 0.0,
+	};
+	world.add(Box::new(Sphere {
+		center: Point3::new(4.0, 1.0, 0.0),
+		radius: 1.0,
+		material: material3,
+	}));
+
+	world
 }

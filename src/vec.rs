@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use rand::Rng;
 
-use crate::utility::random_f64_range;
+use crate::utility::{random_f64, random_f64_range};
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -63,6 +63,18 @@ impl Vec3 {
 			}
 			return p;
 		}
+	}
+
+	pub fn random() -> Self {
+		Vec3::new(random_f64(), random_f64(), random_f64())
+	}
+
+	pub fn random_range(min: f64, max: f64) -> Self {
+		Vec3::new(
+			random_f64_range(min, max),
+			random_f64_range(min, max),
+			random_f64_range(min, max),
+		)
 	}
 
 	pub fn x(&self) -> f64 {
