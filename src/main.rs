@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use rand::Rng;
 use rtiow::{
 	camera::Camera,
@@ -6,7 +8,7 @@ use rtiow::{
 	material::{self, Material},
 	ray_color,
 	shapes::sphere::Sphere,
-	vec::{Color, Point3},
+	vec::{Color, Point3, Vec3},
 };
 
 fn main() {
@@ -18,6 +20,7 @@ fn main() {
 	let max_depth = 50;
 
 	// World
+	let _r = (PI / 4.0).cos();
 	let mut world = Box::new(HittableList::new());
 
 	let material_ground = Material {
@@ -32,7 +35,6 @@ fn main() {
 		roughness: 0.0,
 		ior: 1.333,
 	};
-
 	let material_left = Material {
 		albedo: Color::default(),
 		surface: material::Surface::Dielectric,
@@ -51,6 +53,7 @@ fn main() {
 		radius: 100.0,
 		material: material_ground,
 	}));
+
 	world.add(Box::new(Sphere {
 		center: Point3::new(0.0, 0.0, -1.0),
 		radius: 0.5,
@@ -63,7 +66,7 @@ fn main() {
 	}));
 	world.add(Box::new(Sphere {
 		center: Point3::new(-1.0, 0.0, -1.0),
-		radius: -0.4,
+		radius: -0.45,
 		material: material_left,
 	}));
 	world.add(Box::new(Sphere {
@@ -73,7 +76,13 @@ fn main() {
 	}));
 
 	// Camera
-	let camera: Camera = Camera::new(Some(aspect_ratio), None, None, None);
+	let camera: Camera = Camera::new(
+		Vec3::new(-2.0, 2.0, 1.0),
+		Vec3::new(0.0, 0.0, -1.0),
+		Vec3::new(0.0, 1.0, 0.0),
+		20.0,
+		aspect_ratio,
+	);
 
 	// SETUP RNG
 	let mut rng = rand::thread_rng();
