@@ -3,6 +3,8 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use rand::Rng;
 
+use crate::utility::random_f64_range;
+
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
 	pub e: [f64; 3],
@@ -46,6 +48,20 @@ impl Vec3 {
 			in_unit_sphere
 		} else {
 			-in_unit_sphere
+		}
+	}
+
+	pub fn random_in_unit_disk() -> Self {
+		loop {
+			let p = Vec3::new(
+				random_f64_range(-1.0, 1.0),
+				random_f64_range(-1.0, 1.0),
+				0.0,
+			);
+			if p.length_squared() >= 1.0 {
+				continue;
+			}
+			return p;
 		}
 	}
 
