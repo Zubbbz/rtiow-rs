@@ -1,3 +1,6 @@
+use std::{env, path::Path};
+
+use pbr::ProgressBar;
 use rand::Rng;
 use rtiow::{
 	camera::Camera,
@@ -41,10 +44,13 @@ fn main() {
 	// SETUP RNG
 	let mut rng = rand::thread_rng();
 
+	let mut prog_bar = ProgressBar::new((img_height * img_width) as u64);
+	println!("Rendering {} pixels at {} samples per pixel with a max ray depth of {}", img_height * img_width, spp, max_depth);
 	// RENDER
 	let mut rgb_buffer: Vec<u8> = vec![];
 	for y in (0..img_height).rev() {
 		for x in 0..img_width {
+			prog_bar.inc();
 			let mut pixel_color: Color = Color::default();
 			for _s in 0..spp {
 				let u: f64 =
@@ -60,7 +66,13 @@ fn main() {
 	}
 
 	save_image(None, (img_width, img_height), &rgb_buffer).unwrap();
-	println!("\nDone.\n");
+	println!("Image written to {}",
+		env::current_dir()
+			.unwrap()
+			.join(Path::new("image.png"))
+			.display()
+		);
+	prog_bar.finish_print("Done!");
 }
 
 fn random_scene() -> Box<HittableList> {
